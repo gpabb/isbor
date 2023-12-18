@@ -1,0 +1,55 @@
+
+
+//Arduino code f. nakvaemari encoder
+
+const int encoderPinA = 2; // 
+const int encoderPinB = 3; // 
+
+volatile long encoderTicks = 0; // 
+volatile bool lastA = LOW;
+volatile bool lastB = LOW;
+
+void setup() {
+  Serial.begin(9600); // 
+  pinMode(encoderPinA, INPUT_PULLUP); // 
+  pinMode(encoderPinB, INPUT_PULLUP); // 
+
+  
+  lastA = digitalRead(encoderPinA);
+  lastB = digitalRead(encoderPinB);
+
+  
+  attachInterrupt(digitalPinToInterrupt(encoderPinA), updateEncoder, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoderPinB), updateEncoder, CHANGE);
+}
+
+void loop() {
+  long encoderTicksCopy;
+  noInterrupts(); // 
+  encoderTicksCopy = encoderTicks; // 
+  interrupts(); // 
+
+  Serial.print("Ticks: ");
+  Serial.println(encoderTicksCopy);
+  delay(100); // 
+}
+
+void updateEncoder() {
+  bool A = digitalRead(encoderPinA);
+  bool B = digitalRead(encoderPinB);
+
+  if (A != lastA && A == HIGH) { 
+    if (B != A) {
+      encoderTicks++;
+    } else {
+      encoderTicks--;
+    }
+  }
+
+  lastA = A;
+  lastB = B;
+}
+
+
+
+}
