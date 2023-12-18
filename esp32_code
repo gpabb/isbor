@@ -1,0 +1,58 @@
+#include <WiFi.h>
+
+const char* ssid     = "YOUR_WIFI_SSID";     // f. wifi-loca
+const char* password = "YOUR_WIFI_PASSWORD"; // pw
+
+const int encoderPinA = 23; // Encoder A tengdur við pinna D23
+const int encoderPinB = 22; // Encoder B tengdur við pinna D22
+
+volatile long encoderTicks = 0; // Breyta fyrir fjölda tiks
+volatile int lastEncoded = 0; // Geymir síðustu stöðu á encoder
+
+WiFiClient client;
+
+void setup() {
+  Serial.begin(9600); // Til tölvu á 9600 bps
+  pinMode(encoderPinA, INPUT); // Stillir pinna A sem inntak
+  pinMode(encoderPinB, INPUT); // Stillir pinna B sem inntak
+  // Tengir interrupt fyrir encoder (uppfærir stöðu)
+  attachInterrupt(digitalPinToInterrupt(encoderPinA), updateEncoder, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(encoderPinB), updateEncoder, CHANGE);
+
+  // Tengjast WiFi
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.println("Tengist WiFi...");
+  }
+  Serial.println("Tengdur við WiFi");
+}
+
+void loop() {
+  long encoderTicksCopy; // tímabundin breyta fyrir tiks/snúninga
+  noInterrupts(); // ekki nota interrupt til að lesa breytu örugglega rétt
+  encoderTicksCopy = encoderTicks; // afrita gildi í tímabundna breytu
+  interrupts(); // virkja aftur á interrupt
+
+  // Send gögn yfir WiFi
+  if(client.connect("SERVER_IP", PORT_NUMBER)){ // Skiptu út fyrir IP og port f. gagna tolvu
+    client.print("Ticks: ");
+    client.println(encoderTicksCopy);
+    client.stop();
+  }
+  
+  delay(500); // bíða hversu lengi svo endurtaka
+}
+
+void updateEncoder() {
+  int MSB = digitalRead(encoderPinA); // Les MSB (Most Significant Bit) frá Encoder A
+  int LSB = digitalRead(encoderPinB); // Les LSB (Least Significant Bit) frá Encoder B
+
+  int currentEncoded = (MSB << 1) | LSB; // Sameinar MSB og LSB frá encoder
+  int sum = (lastEncoded << 2) | currentEncoded;
+
+  if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011) encoderTicks++;
+  if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000) encoderTicks--;
+
+  lastEncoded = currentEncoded; // uppfæra 'lastEncoded' með current stöðu
+}
