@@ -1,0 +1,53 @@
+import serial
+import time
+
+# fastar m.v maeld gildi
+CONTACT_LENGTH_CM = 10.4  # snertiflotur
+TICKS_PER_REVOLUTION_ENCODER = 100  # tikks m.v gagnablad encoder
+DIAMETER_LARGER_GEAR_CM = 65  # stora hjol girun
+DIAMETER_SMALLER_GEAR_CM = 14  # litla hjol girun
+
+# girhlutfall
+gear_ratio = DIAMETER_LARGER_GEAR_CM / DIAMETER_SMALLER_GEAR_CM
+
+# girhlutfall sett inn
+adjusted_ticks_per_revolution = TICKS_PER_REVOLUTION_ENCODER * gear_ratio
+
+# faersla
+def calculate_distance_moved(ticks, adjusted_ticks_per_rev, contact_length):
+    revolutions = ticks / adjusted_ticks_per_rev
+    distance_moved = revolutions * contact_length * 4  
+    # linuleg lagfaering
+    adjustment_value = 0.6  # Einfalt stilligildi
+    # lagfaeringin er per meter
+    meters_moved = int(abs(distance_moved) // 100)
+    adjustment_factor = adjustment_value * meters_moved
+    adjusted_distance = distance_moved - adjustment_factor if distance_moved >= 0 else distance_moved + adjustment_factor
+    return adjusted_distance
+
+# serial port valid
+ser = serial.Serial('COM7', 9600, timeout=1)
+
+# lesa tiks fra serial
+def read_encoder_ticks():
+    try:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8', errors='ignore').rstrip()
+            return line
+    except UnicodeDecodeError:
+        return None
+
+# keyra loopu med fostum og follum
+try:
+    while True:
+        ticks_str = read_encoder_ticks()
+        if ticks_str is not None and "Ticks" in ticks_str:
+            ticks = int(ticks_str.split(":")[1])
+            adjusted_distance = calculate_distance_moved(ticks, adjusted_ticks_per_revolution, CONTACT_LENGTH_CM)
+            print(f"Ticks: {ticks}, Færsla: {adjusted_distance:.2f} cm")
+        time.sleep(0.1)
+# STOP       
+except KeyboardInterrupt:
+    print("Program terminated")
+finally:
+    ser.close()
