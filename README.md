@@ -11,7 +11,7 @@ Hér er að finna forritakóða (í Python og C) og LaTeX skjöl sem voru notuð
 - `python_data_code`: Python kóði sem notaður er fyrir gagnavinnslu.
 - `README.md`: Lýsing á verkefninu og leiðbeiningar um notkun repository-sins.
 - `Hagnytt_verkefni_II_GHG_JDK (3) (1).pdf`: Skýrsla um verkefnið og lýsing á uppsetningu.
-- - `matlab_gagnagrof`: Matlab kóði notaður fyrir myndræna úrvinnslu gagna.
+- `matlab_gagnagrof`: Matlab kóði notaður fyrir myndræna úrvinnslu gagna.
 
 ## Tilraunabúnaður
 Upplýsingar um uppsetningu og búnað sem notast er við má finna í LaTeX skjölum innan repository-sins. Skýringarmyndir og nánari upplýsingar um tilraunabúnaðinn eru einnig aðgengilegar þar. Notast er við [5V 60MM Ultra-thin Hand Wheel Pulse Encoder](https://www.desertcart.co.uk/products/139697212-5-v-60-mm-ultra-thin-hand-wheel-pulse-encoder-cnc-mill-router-encoder-knob-encoder-6-mm-terminal-connection-100-stop-positions-smooth-rotation-for-manual-pulse-input-type-cnc-or-milling-machine) og [Metal DC Geared Motor w/Encoder - 6V 210RPM 10Kg.cm](https://www.dfrobot.com/product-1617.html) sem hluti af tilraunabúnaðinum.
